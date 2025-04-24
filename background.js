@@ -97,7 +97,7 @@ function openServiceWindow(service, prompt) {
     gemini: 'https://gemini.google.com/app',
     grok: 'https://x.com/i/grok',
     perplexity: 'https://www.perplexity.ai',
-    manus: 'https://manus.ai'
+    manus: 'https://manus.im'
   };
 
   const url = serviceUrls[service];
@@ -188,7 +188,7 @@ function openServiceWindow(service, prompt) {
                 }
               }
               // Manus
-              else if (host.includes('manus.ai')) {
+              else if (host.includes('manus.ai') || host.includes('manus.im')) {
                 const waitManus = () => {
                   const inputEl = document.querySelector('textarea[placeholder*="Manus にタスクを依頼"]');
                   const sendBtn = document.querySelector('button svg[viewBox="0 0 16 16"]').closest('button');

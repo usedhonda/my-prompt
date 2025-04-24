@@ -16,7 +16,10 @@
     "https://x.com/*",
     "https://*.x.ai/*",
     "https://www.perplexity.ai/*",
-    "https://manus.ai/*"
+    "https://manus.ai/*",
+    "https://*.manus.ai/*",
+    "https://manus.im/*",
+    "https://*.manus.im/*"
   ],
   "background": {
     "service_worker": "background.js"
