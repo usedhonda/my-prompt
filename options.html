@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>俺のプロンプト - 設定</title>
+  <link rel="stylesheet" href="options.css">
+  <style>
+    body {
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+    .section {
+      margin-bottom: 30px;
+    }
+    h2 {
+      margin-bottom: 15px;
+      color: #333;
+    }
+    .service-list {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+    .service-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .prompt-template {
+      margin-top: 20px;
+    }
+    .prompt-template h3 {
+      margin-bottom: 10px;
+      color: #555;
+    }
+    .prompt-template textarea {
+      width: 100%;
+      height: 150px;
+      margin-bottom: 20px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+    .template-info {
+      background: #f5f5f5;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+    .template-info h4 {
+      margin-top: 0;
+      margin-bottom: 10px;
+    }
+    .template-info code {
+      background: #e0e0e0;
+      padding: 2px 4px;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>
+      <img src="icons/icon128.png" alt="アイコン" class="title-icon">
+      <span class="title-text">のプロンプト - 設定</span>
+    </h1>
+    
+    <section class="services">
+      <h2>使用するサービス</h2>
+      <div class="service-grid">
+        <div class="service-card" data-service="chat">
+          <div class="service-icon">
+            <img src="icons/chatgpt.svg" alt="ChatGPT">
+          </div>
+          <div class="service-info">
+            <h3>ChatGPT</h3>
+            <p>OpenAIが提供する高性能な対話型AI</p>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" value="chat">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        
+        <div class="service-card" data-service="gemini">
+          <div class="service-icon">
+            <img src="icons/gemini.svg" alt="Gemini">
+          </div>
+          <div class="service-info">
+            <h3>Gemini</h3>
+            <p>Googleが開発した次世代AI言語モデル</p>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" value="gemini">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="service-card" data-service="grok">
+          <div class="service-icon">
+            <img src="icons/grok.svg" alt="Grok">
+          </div>
+          <div class="service-info">
+            <h3>Grok</h3>
+            <p>xAIによる個性的な対話型AI</p>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" value="grok">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="service-card" data-service="perplexity">
+          <div class="service-icon">
+            <img src="icons/perplexity.svg" alt="Perplexity">
+          </div>
+          <div class="service-info">
+            <h3>Perplexity</h3>
+            <p>リアルタイム情報に強い検索型AI</p>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" value="perplexity">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="service-card" data-service="manus">
+          <div class="service-icon">
+            <img src="icons/manus.svg" alt="Manus">
+          </div>
+          <div class="service-info">
+            <h3>Manus</h3>
+            <p>タスク指向の日本語AIアシスタント</p>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" value="manus">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <section class="prompts">
+      <h2>プロンプトテンプレート</h2>
+      
+      <div class="help-box">
+        <h3>プロンプトの使い方</h3>
+        <ul>
+          <li>各プロンプトで使用できる変数は、<code>{変数名}</code>の形式で指定します</li>
+          <li>変数は自動的に実際の値に置き換えられます</li>
+          <li>プロンプトを空欄にした場合は、デフォルトのプロンプトが使用されます</li>
+          <li>「デフォルトに戻す」ボタンで、すべてのプロンプトをデフォルト設定に戻せます</li>
+        </ul>
+      </div>
+      
+      <div class="template-info">
+        <h4>利用可能な変数</h4>
+        <div id="available-variables">
+          <!-- 変数の説明はJavaScriptで動的に挿入されます -->
+        </div>
+      </div>
+      
+      <div class="prompt-template">
+        <h3>URL送信時のプロンプト</h3>
+        <div class="prompt-description">
+          ページ上で右クリックした際に使用されるプロンプトです。
+          ウェブページの内容を要約したり、重要なポイントを抽出したりする際に便利です。
+        </div>
+        <textarea id="send-url-prompt" rows="6"></textarea>
+      </div>
+
+      <div class="prompt-template">
+        <h3>選択テキスト送信時のプロンプト</h3>
+        <div class="prompt-description">
+          テキストを選択して右クリックした際に使用されるプロンプトです。
+          選択したテキストの意味や使われ方について質問する際に便利です。
+        </div>
+        <textarea id="send-text-prompt" rows="6"></textarea>
+      </div>
+
+      <div class="prompt-template">
+        <h3>翻訳時のプロンプト</h3>
+        <div class="prompt-description">
+          テキストを選択して翻訳を実行する際に使用されるプロンプトです。
+          単なる翻訳だけでなく、語法や用例の説明を含めることができます。
+        </div>
+        <textarea id="translate-text-prompt" rows="6"></textarea>
+      </div>
+    </section>
+
+    <div class="actions">
+      <button id="reset">デフォルトに戻す</button>
+      <button id="save">保存</button>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+  <script src="options.js"></script>
+</body>
+</html>
