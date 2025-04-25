@@ -4,9 +4,11 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-</div>
+</div> 
 
 ## 📖 概要
+
+b2
 
 選択したテキストや現在のページを各種AIサービスに送信するためのChrome拡張機能です。
 シンプルな操作で、複数のAIサービスを同時に活用できます。
