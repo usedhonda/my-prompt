@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "俺のプロンプト",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "選択したテキストや現在のページを各種AIサービスに送信するための拡張機能",
   "permissions": [
     "contextMenus",
