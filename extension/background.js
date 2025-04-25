@@ -103,9 +103,13 @@ function openServiceWindow(service, prompt) {
                   input: inputEl ? 'yes' : 'no'
                 });
                 
+                // Grokの場合は待機時間を延長
+                const isGrok = submitSelector.includes('Grok');
+                const waitTime = isGrok ? 2000 : 1000;
+                
                 if (!inputEl) {
                   console.log('Waiting for elements...');
-                  return setTimeout(waitForElements, 1000);
+                  return setTimeout(waitForElements, waitTime);
                 }
                 
                 // テキストの入力準備
@@ -125,7 +129,12 @@ function openServiceWindow(service, prompt) {
                 // 少し待ってからテキストを入力
                 setTimeout(() => {
                   console.log('Setting text value');
+                  
+                  // 重要: 入力要素の種類によって処理を分岐
+                  // - contentEditable=true（ChatGPT, Gemini）: innerHTML + InputEventで入力
+                  // - textarea（Grok）: valueプロパティ + input/changeイベントで入力
                   if (isContentEditable) {
+                    // contentEditable要素の場合（ChatGPT, Geminiなど）
                     inputEl.innerHTML = `<p>${text}</p>`;
                     const event = new InputEvent('input', {
                       bubbles: true,
@@ -134,12 +143,20 @@ function openServiceWindow(service, prompt) {
                       data: text
                     });
                     inputEl.dispatchEvent(event);
+                  } else {
+                    // 通常のtextarea要素の場合（Grokなど）
+                    // valueプロパティでテキストを設定し、input/changeイベントを発火
+                    // この処理が必要なサービスでは、SERVICE_SELECTORSのisContentEditableをfalseに設定すること
+                    inputEl.value = text;
+                    inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+                    inputEl.dispatchEvent(new Event('change', { bubbles: true }));
                   }
                   
-                  // 入力イベントの発火を確認
-                  console.log('Text set, length:', inputEl.textContent.length);
+                  // 入力イベントの発火を確認（要素の種類に応じて確認方法を変更）
+                  console.log('Text set, length:', isContentEditable ? inputEl.textContent.length : inputEl.value.length);
 
-                  // テキスト入力後に送信ボタンを探す（400ms待機）
+                  // テキスト入力後に送信ボタンを探す
+                  const buttonWaitTime = isGrok ? 800 : 400;
                   setTimeout(() => {
                     const submitBtn = document.querySelector(submitSelector);
                     console.log('Looking for submit button:', submitBtn ? 'found' : 'not found');
@@ -152,7 +169,7 @@ function openServiceWindow(service, prompt) {
                     } else {
                       console.log('Submit button not found');
                     }
-                  }, 400);
+                  }, buttonWaitTime);
                 }, 500);
               };
               

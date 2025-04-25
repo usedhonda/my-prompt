@@ -26,21 +26,24 @@ export const DEFAULT_SERVICES = {
 };
 
 // サービスのセレクタ
+// isContentEditable: 入力要素の種類を指定
+// - true: contentEditable要素（innerHTML + InputEventで入力）
+// - false: 通常のtextarea要素（value + input/changeイベントで入力）
 export const SERVICE_SELECTORS = {
   [SERVICES.CHAT]: {
     input: '#prompt-textarea',
     submit: 'button#composer-submit-button[data-testid="send-button"]',
-    isContentEditable: true
+    isContentEditable: true  // contentEditable div要素を使用
   },
   [SERVICES.GEMINI]: {
-    input: '[role="textbox"], textarea',
+    input: 'div[role="textbox"][aria-label="ここにプロンプトを入力してください"]',
     submit: 'button[aria-label*="送信"], button[aria-label*="Send"]',
-    isContentEditable: false
+    isContentEditable: true  // contentEditable div要素を使用
   },
   [SERVICES.GROK]: {
-    input: 'textarea[placeholder*="どんなことでも"], textarea[placeholder*="Ask"]',
+    input: 'textarea[placeholder*="どんなことでもお尋ねください"]',
     submit: 'button[aria-label*="Grokに聞く"], button[aria-label*="Ask Grok"]',
-    isContentEditable: false
+    isContentEditable: false  // 通常のtextarea要素を使用
   },
   [SERVICES.MANUS]: {
     input: 'textarea[placeholder*="Manus にタスクを依頼"]',
