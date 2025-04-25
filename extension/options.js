@@ -15,6 +15,11 @@ const DEFAULT_SETTINGS = {
     perplexity: false,
     manus: false
   },
+  titles: {
+    'send-url': 'URLのみ送信',
+    'send-text': '選択テキスト送信',
+    'translate-text': '翻訳'
+  },
   prompts: {
     'send-url': `以下のURLを読み込んでください。
 {pageUrl}
@@ -49,12 +54,25 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // サービスの設定を読み込む
-  chrome.storage.sync.get(['services', 'prompts'], (result) => {
+  chrome.storage.sync.get(['services', 'prompts', 'titles'], (result) => {
     // デフォルト設定とマージ
     const settings = {
       services: { ...DEFAULT_SETTINGS.services, ...result.services },
+      titles: { ...DEFAULT_SETTINGS.titles, ...result.titles },
       prompts: { ...DEFAULT_SETTINGS.prompts, ...result.prompts }
     };
+
+    // タイトルの設定を読み込む
+    Object.entries(settings.titles).forEach(([key, value]) => {
+      const titleInput = document.getElementById(`${key}-title`);
+      if (titleInput) {
+        titleInput.value = value;
+        titleInput.addEventListener('input', () => {
+          settings.titles[key] = titleInput.value;
+          saveSettings(settings);
+        });
+      }
+    });
 
     // サービスのチェックボックスを設定し、changeイベントでトグル処理
     document.querySelectorAll('.service-card input[type="checkbox"]').forEach(checkbox => {
@@ -202,6 +220,14 @@ function resetOptions() {
     } else {
       card.classList.remove('active');
       card.classList.remove('saved');
+    }
+  });
+
+  // タイトルをデフォルトに戻す
+  Object.entries(settings.titles).forEach(([key, value]) => {
+    const titleInput = document.getElementById(`${key}-title`);
+    if (titleInput) {
+      titleInput.value = value;
     }
   });
 

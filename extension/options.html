@@ -32,6 +32,22 @@
     .prompt-template {
       margin-top: 20px;
     }
+    .prompt-title {
+      margin-bottom: 10px;
+    }
+    .title-input {
+      width: 100%;
+      padding: 8px;
+      font-size: 16px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+    .title-input:focus {
+      outline: none;
+      border-color: #4a90e2;
+      box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+    }
     .prompt-template h3 {
       margin-bottom: 10px;
       color: #555;
@@ -165,28 +181,22 @@
       </div>
       
       <div class="prompt-template">
-        <h3>URL送信時のプロンプト</h3>
-        <div class="prompt-description">
-          ページ上で右クリックした際に使用されるプロンプトです。
-          ウェブページの内容を要約したり、重要なポイントを抽出したりする際に便利です。
+        <div class="prompt-title">
+          <input type="text" class="title-input" id="send-url-title" value="テキスト未選択" placeholder="タイトルを入力">
         </div>
         <textarea id="send-url-prompt" rows="6"></textarea>
       </div>
 
       <div class="prompt-template">
-        <h3>選択テキスト送信時のプロンプト</h3>
-        <div class="prompt-description">
-          テキストを選択して右クリックした際に使用されるプロンプトです。
-          選択したテキストの意味や使われ方について質問する際に便利です。
+        <div class="prompt-title">
+          <input type="text" class="title-input" id="send-text-title" value="選択テキスト送信" placeholder="タイトルを入力">
         </div>
         <textarea id="send-text-prompt" rows="6"></textarea>
       </div>
 
       <div class="prompt-template">
-        <h3>翻訳時のプロンプト</h3>
-        <div class="prompt-description">
-          テキストを選択して翻訳を実行する際に使用されるプロンプトです。
-          単なる翻訳だけでなく、語法や用例の説明を含めることができます。
+        <div class="prompt-title">
+          <input type="text" class="title-input" id="translate-text-title" value="翻訳" placeholder="タイトルを入力">
         </div>
         <textarea id="translate-text-prompt" rows="6"></textarea>
       </div>

@@ -25,30 +25,46 @@ const DEFAULT_PROMPTS = {
 const CONTEXT_MENUS = [
   {
     id: 'send-url',
-    title: '送信: ページのURL',
+    title: 'URLのみ送信',
     contexts: ['all']
   },
   {
     id: 'send-text',
-    title: '送信: 選択テキスト',
+    title: '選択テキスト送信',
     contexts: ['selection']
   },
   {
     id: 'translate-text',
-    title: '翻訳: 選択テキスト',
+    title: '翻訳',
     contexts: ['selection']
   }
 ];
 
-// コンテキストメニューの登録
-chrome.runtime.onInstalled.addListener(() => {
-  // 既存のメニューをクリア
-  chrome.contextMenus.removeAll(() => {
-    // メニューを順番に作成
-    CONTEXT_MENUS.forEach(menu => {
-      chrome.contextMenus.create(menu);
+// コンテキストメニューの登録と更新
+function updateContextMenus() {
+  chrome.storage.sync.get(['titles'], ({ titles }) => {
+    // 既存のメニューをクリア
+    chrome.contextMenus.removeAll(() => {
+      // メニューを順番に作成（タイトルが設定されている場合はそれを使用）
+      CONTEXT_MENUS.forEach(menu => {
+        const menuTitle = titles && titles[menu.id] ? titles[menu.id] : menu.title;
+        chrome.contextMenus.create({
+          ...menu,
+          title: menuTitle
+        });
+      });
     });
   });
+}
+
+// 拡張機能インストール時にメニューを作成
+chrome.runtime.onInstalled.addListener(updateContextMenus);
+
+// ストレージの変更を監視し、タイトルが変更されたらメニューを更新
+chrome.storage.onChanged.addListener((changes, namespace) => {
+  if (namespace === 'sync' && changes.titles) {
+    updateContextMenus();
+  }
 });
 
 // メニュークリック処理
