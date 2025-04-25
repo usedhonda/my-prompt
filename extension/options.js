@@ -1,45 +1,9 @@
 // options.js
 
-// 利用可能な変数の定義
-const AVAILABLE_VARIABLES = {
-  pageUrl: '現在のページのURL',
-  selectionText: '選択したテキスト（選択時のみ）'
-};
-
-// デフォルトの設定
-const DEFAULT_SETTINGS = {
-  services: {
-    chat: true,      // ChatGPTはデフォルトで有効
-    gemini: false,
-    grok: false,
-    perplexity: false,
-    manus: false
-  },
-  titles: {
-    'send-url': 'URLのみ送信',
-    'send-text': '選択テキスト送信',
-    'translate-text': '翻訳'
-  },
-  prompts: {
-    'send-url': `以下のURLを読み込んでください。
-{pageUrl}
-
-このページの内容を以下の見やすいMarkdown形式でまとめてください。
-1. **わかりやすい要約**
-2. **特徴的なキーワードの解説**
-3. **記事を理解するために知っておくべき補足情報**`,
-
-    'send-text': `以下のURLを読み込んでください。
-{pageUrl}
-
-そこに記載されている「{selectionText}」について、一般的な意味合いだけでなく、文章内でどのような意味で使われているか、教えてください。`,
-
-    'translate-text': `次のテキストを翻訳してください。英語なら日本語、日本語なら英語。その他の言語なら日本語に。
-
-翻訳結果を提示する際には、上級レベルの英語学習者にとって役立つ追加情報（語彙のニュアンス、例文、語法のポイントなど）をできるだけ詳しく説明してください。
-{selectionText}`
-  }
-};
+import {
+  AVAILABLE_VARIABLES,
+  DEFAULT_SETTINGS
+} from './constants.js';
 
 // 初期表示：保存済み設定をチェックボックスに反映
 document.addEventListener('DOMContentLoaded', () => {
@@ -167,34 +131,24 @@ function getSelectedCount() {
   return document.querySelectorAll('.service-card input[type="checkbox"]:checked').length;
 }
 
-// トースト表示用関数
-function showToast(message, isWarning = false) {
+// トースト通知を表示
+function showToast(message) {
   const toast = document.getElementById('toast');
-  if (!toast) return;
-  
-  // 既存のトーストを非表示
-  toast.classList.remove('show');
-  toast.classList.remove('warning');
-  
-  // 新しいトーストを表示
+  toast.textContent = message;
+  toast.classList.add('show');
   setTimeout(() => {
-    toast.textContent = message;
-    toast.classList.add('show');
-    if (isWarning) {
-      toast.classList.add('warning');
-    }
-    
-    // 一定時間後に非表示
-    setTimeout(() => {
-      toast.classList.remove('show');
-      toast.classList.remove('warning');
-    }, 2000);
-  }, 100);
+    toast.classList.remove('show');
+  }, 3000);
 }
 
-// 警告用トースト表示
+// 警告トーストを表示
 function showWarningToast(message) {
-  showToast(message, true);
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.classList.add('show', 'warning');
+  setTimeout(() => {
+    toast.classList.remove('show', 'warning');
+  }, 3000);
 }
 
 // 設定の保存

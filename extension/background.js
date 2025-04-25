@@ -1,44 +1,13 @@
 // background.js
 
-// デフォルトのプロンプトテンプレート
-const DEFAULT_PROMPTS = {
-  'send-url': `以下のURLを読み込んでください。
-{pageUrl}
-
-このページの内容を以下の見やすいMarkdown形式でまとめてください。
-1. **わかりやすい要約**
-2. **特徴的なキーワードの解説**
-3. **記事を理解するために知っておくべき補足情報**`,
-
-  'send-text': `以下のURLを読み込んでください。
-{pageUrl}
-
-そこに記載されている「{selectionText}」について、一般的な意味合いだけでなく、文章内でどのような意味で使われているか、教えてください。`,
-
-  'translate-text': `次のテキストを翻訳してください。英語なら日本語、日本語なら英語。その他の言語なら日本語に。
-
-翻訳結果を提示する際には、上級レベルの英語学習者にとって役立つ追加情報（語彙のニュアンス、例文、語法のポイントなど）をできるだけ詳しく説明してください。
-{selectionText}`
-};
-
-// コンテキストメニューの設定
-const CONTEXT_MENUS = [
-  {
-    id: 'send-url',
-    title: 'URLのみ送信',
-    contexts: ['all']
-  },
-  {
-    id: 'send-text',
-    title: '選択テキスト送信',
-    contexts: ['selection']
-  },
-  {
-    id: 'translate-text',
-    title: '翻訳',
-    contexts: ['selection']
-  }
-];
+import {
+  SERVICES,
+  SERVICE_URLS,
+  SERVICE_SELECTORS,
+  DEFAULT_SERVICES,
+  DEFAULT_PROMPTS,
+  CONTEXT_MENUS
+} from './constants.js';
 
 // コンテキストメニューの登録と更新
 function updateContextMenus() {
@@ -71,17 +40,8 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   // 設定を読み込んでプロンプトを処理
   chrome.storage.sync.get(['services', 'prompts'], ({ services, prompts }) => {
-    // デフォルト設定
-    const defaultServices = {
-      chat: true,
-      gemini: false,
-      grok: false,
-      perplexity: false,
-      manus: false
-    };
-
     // 設定が存在しない場合はデフォルト値を使用
-    const activeServices = services || defaultServices;
+    const activeServices = services || DEFAULT_SERVICES;
     const activePrompts = prompts || DEFAULT_PROMPTS;
 
     // プロンプトテンプレートを取得
@@ -108,123 +68,94 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 
 // サービスウィンドウを開く関数
 function openServiceWindow(service, prompt) {
-  const serviceUrls = {
-    chat: 'https://chat.openai.com',
-    gemini: 'https://gemini.google.com/app',
-    grok: 'https://x.com/i/grok',
-    perplexity: 'https://www.perplexity.ai',
-    manus: 'https://manus.im'
-  };
-
-  const url = serviceUrls[service];
+  const url = SERVICE_URLS[service];
   if (url) {
     chrome.tabs.create({ url: url, active: false }, tab => {
       const onUpdated = (tabId, changeInfo) => {
         if (tabId === tab.id && changeInfo.status === 'complete') {
           chrome.tabs.onUpdated.removeListener(onUpdated);
+          
+          // Perplexityの場合は特別な処理
+          if (service === SERVICES.PERPLEXITY) {
+            const encodedPayload = encodeURIComponent(prompt);
+            const finalUrl = encodedPayload.length > 1500 
+              ? `${SERVICE_URLS[SERVICES.PERPLEXITY].replace('{text}', encodeURIComponent(prompt.slice(0, 700) + '...'))}`
+              : `${SERVICE_URLS[SERVICES.PERPLEXITY].replace('{text}', encodedPayload)}`;
+            
+            chrome.tabs.update(tab.id, { url: finalUrl });
+            return;
+          }
+
+          // サービスのセレクタ情報を取得
+          const selector = SERVICE_SELECTORS[service];
+          if (!selector) return;
+
+          // プロンプト注入スクリプトを実行
           chrome.scripting.executeScript({
             target: { tabId: tab.id },
-            func: (text) => {
-              const host = location.host;
-              // ChatGPT
-              if (host.includes('chat.openai.com') || host.includes('chatgpt.com')) {
-                const waitPrompt = () => {
-                  const pm = document.getElementById('prompt-textarea');
-                  if (!pm) return setTimeout(waitPrompt, 600);
-                  pm.focus(); pm.innerHTML = '';
-                  document.execCommand('insertText', false, text);
-                  pm.dispatchEvent(new InputEvent('input', { bubbles: true }));
-                  waitSend();
-                };
-                const waitSend = () => {
-                  const btn = document.getElementById('composer-submit-button') ||
-                              document.querySelector('[data-testid="send-button"]');
-                  if (!btn) return setTimeout(waitSend, 600);
-                  btn.click();
-                };
-                setTimeout(waitPrompt, 1000);
-              }
-              // Gemini
-              else if (host.includes('gemini.google.com')) {
-                const waitGemini = () => {
-                  // より具体的なセレクタを使用
-                  const inputEl = document.querySelector('[role="textbox"], textarea');
-                  const sendBtn = document.querySelector('button[aria-label*="送信"], button[aria-label*="Send"]');
-                  
-                  if (!inputEl || !sendBtn) return setTimeout(waitGemini, 600);
-
-                  // テキストの入力
-                  inputEl.focus();
-                  if (inputEl.tagName.toLowerCase() === 'textarea') {
-                    inputEl.value = text;
+            func: (text, inputSelector, submitSelector, isContentEditable) => {
+              console.log('Injecting prompt with selectors:', { inputSelector, submitSelector, isContentEditable });
+              
+              const waitForElements = () => {
+                const inputEl = document.querySelector(inputSelector);
+                const submitBtn = document.querySelector(submitSelector);
+                
+                console.log('Found elements:', { 
+                  input: inputEl ? 'yes' : 'no',
+                  submit: submitBtn ? 'yes' : 'no'
+                });
+                
+                if (!inputEl || !submitBtn) {
+                  console.log('Waiting for elements...');
+                  return setTimeout(waitForElements, 600);
+                }
+                
+                // テキストの入力
+                console.log('Focusing input element');
+                inputEl.focus();
+                
+                // 少し待ってからテキストを入力
+                setTimeout(() => {
+                  console.log('Setting text value');
+                  if (isContentEditable) {
+                    // contenteditable要素の場合
+                    inputEl.innerHTML = `<p>${text}</p>`;
+                    // 新しいイベントを作成して発火
+                    const event = new InputEvent('input', {
+                      bubbles: true,
+                      cancelable: true,
+                      inputType: 'insertText',
+                      data: text
+                    });
+                    inputEl.dispatchEvent(event);
                   } else {
-                    inputEl.textContent = text;
+                    // 通常のinput/textarea要素の場合
+                    if (inputEl.tagName.toLowerCase() === 'textarea') {
+                      inputEl.value = text;
+                    } else {
+                      inputEl.textContent = text;
+                    }
+                    inputEl.dispatchEvent(new InputEvent('input', { bubbles: true }));
                   }
-                  inputEl.dispatchEvent(new InputEvent('input', { bubbles: true }));
                   
-                  // 少し待ってから送信（入力が確実に反映されるのを待つ）
+                  // さらに少し待ってから送信
                   setTimeout(() => {
-                    if (!sendBtn.disabled) {
-                      sendBtn.click();
+                    console.log('Checking submit button');
+                    if (!submitBtn.disabled) {
+                      console.log('Clicking submit button');
+                      submitBtn.click();
+                    } else {
+                      console.log('Submit button is disabled');
                     }
                   }, 500);
-                };
-                setTimeout(waitGemini, 800);
-              }
-              // Grok
-              else if (host.includes('x.com')) {
-                const waitGrok = () => {
-                  // 日本語と英語の両方に対応したセレクタ
-                  const inputEl = document.querySelector('textarea[placeholder*="どんなことでも"], textarea[placeholder*="Ask"]');
-                  const sendBtn = document.querySelector('button[aria-label*="Grokに聞く"], button[aria-label*="Ask Grok"]');
-                  
-                  if (!inputEl || !sendBtn) return setTimeout(waitGrok, 600);
-                  
-                  // テキストの入力
-                  inputEl.focus();
-                  inputEl.value = text;
-                  inputEl.dispatchEvent(new InputEvent('input', { bubbles: true }));
-                  
-                  // 送信ボタンが有効な場合のみクリック
-                  if (!sendBtn.disabled) {
-                    sendBtn.click();
-                  }
-                };
-                setTimeout(waitGrok, 800);
-              }
-              // Perplexity
-              else if (host.includes('perplexity.ai')) {
-                const encodedPayload = encodeURIComponent(text);
-                if (encodedPayload.length > 1500) {
-                  // 長すぎる場合は切り詰める
-                  const truncatedPayload = text.slice(0, 700) + '...';
-                  location.href = 'https://www.perplexity.ai/search?q=' + encodeURIComponent(truncatedPayload);
-                } else {
-                  location.href = 'https://www.perplexity.ai/search?q=' + encodedPayload;
-                }
-              }
-              // Manus
-              else if (host.includes('manus.ai') || host.includes('manus.im')) {
-                const waitManus = () => {
-                  const inputEl = document.querySelector('textarea[placeholder*="Manus にタスクを依頼"]');
-                  const sendBtn = document.querySelector('button svg[viewBox="0 0 16 16"]').closest('button');
-                  
-                  if (!inputEl || !sendBtn) return setTimeout(waitManus, 600);
-                  
-                  // テキストの入力
-                  inputEl.focus();
-                  inputEl.value = text;
-                  inputEl.dispatchEvent(new InputEvent('input', { bubbles: true }));
-                  
-                  // 送信ボタンが有効な場合のみクリック
-                  if (!sendBtn.disabled) {
-                    sendBtn.click();
-                  }
-                };
-                setTimeout(waitManus, 800);
-              }
+                }, 200);
+              };
+              
+              // 初回実行
+              console.log('Starting element wait cycle');
+              setTimeout(waitForElements, 800);
             },
-            args: [prompt]
+            args: [prompt, selector.input, selector.submit, selector.isContentEditable]
           });
         }
       };
