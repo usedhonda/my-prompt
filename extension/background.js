@@ -98,16 +98,24 @@ function openServiceWindow(service, prompt) {
               
               const waitForElements = () => {
                 const inputEl = document.querySelector(inputSelector);
-                const submitBtn = document.querySelector(submitSelector);
                 
                 console.log('Found elements:', { 
-                  input: inputEl ? 'yes' : 'no',
-                  submit: submitBtn ? 'yes' : 'no'
+                  input: inputEl ? 'yes' : 'no'
                 });
                 
-                if (!inputEl || !submitBtn) {
+                if (!inputEl) {
                   console.log('Waiting for elements...');
-                  return setTimeout(waitForElements, 600);
+                  return setTimeout(waitForElements, 1000);
+                }
+                
+                // テキストの入力準備
+                console.log('Preparing input element');
+                
+                // 初期状態の場合は、クリックしてエディタを有効化
+                if (inputEl.getAttribute('data-placeholder') === '質問してみましょう') {
+                  console.log('Activating editor');
+                  inputEl.click();
+                  return setTimeout(waitForElements, 500);
                 }
                 
                 // テキストの入力
@@ -118,9 +126,7 @@ function openServiceWindow(service, prompt) {
                 setTimeout(() => {
                   console.log('Setting text value');
                   if (isContentEditable) {
-                    // contenteditable要素の場合
                     inputEl.innerHTML = `<p>${text}</p>`;
-                    // 新しいイベントを作成して発火
                     const event = new InputEvent('input', {
                       bubbles: true,
                       cancelable: true,
@@ -128,32 +134,31 @@ function openServiceWindow(service, prompt) {
                       data: text
                     });
                     inputEl.dispatchEvent(event);
-                  } else {
-                    // 通常のinput/textarea要素の場合
-                    if (inputEl.tagName.toLowerCase() === 'textarea') {
-                      inputEl.value = text;
-                    } else {
-                      inputEl.textContent = text;
-                    }
-                    inputEl.dispatchEvent(new InputEvent('input', { bubbles: true }));
                   }
                   
-                  // さらに少し待ってから送信
+                  // 入力イベントの発火を確認
+                  console.log('Text set, length:', inputEl.textContent.length);
+
+                  // テキスト入力後に送信ボタンを探す（400ms待機）
                   setTimeout(() => {
-                    console.log('Checking submit button');
-                    if (!submitBtn.disabled) {
+                    const submitBtn = document.querySelector(submitSelector);
+                    console.log('Looking for submit button:', submitBtn ? 'found' : 'not found');
+                    
+                    if (submitBtn && !submitBtn.disabled) {
                       console.log('Clicking submit button');
                       submitBtn.click();
-                    } else {
+                    } else if (submitBtn) {
                       console.log('Submit button is disabled');
+                    } else {
+                      console.log('Submit button not found');
                     }
-                  }, 500);
-                }, 200);
+                  }, 400);
+                }, 500);
               };
               
               // 初回実行
               console.log('Starting element wait cycle');
-              setTimeout(waitForElements, 800);
+              setTimeout(waitForElements, 1000);
             },
             args: [prompt, selector.input, selector.submit, selector.isContentEditable]
           });
