@@ -77,6 +77,8 @@
 
 [![拡張機能のデモ](https://img.youtube.com/vi/TEzWdHMUWhU/0.jpg)](https://www.youtube.com/watch?v=TEzWdHMUWhU)
 
+@https://youtu.be/hD_HV36I5SQ
+
 ## ⚙️ カスタマイズ
 
 拡張機能のオプションページで以下の設定が可能：
@@ -118,7 +120,7 @@
 
 ### v1.0.7
 - Chromeウェブストア公開に向けて`manifest.json`のパーミッションを整理
-  - 必要最小限の`permissions`（`tabs`, `contextMenus`, `storage`, `scripting`）のみを明記
+  - 必要最小限の`permissions`（`contextMenus`, `storage`, `scripting`）のみを明記
   - `host_permissions`をAIサービスのみに限定し、不要な権限を削除
 - セキュリティ・審査通過のためのmanifest見直し
 - ドキュメントの微修正
