@@ -73,9 +73,7 @@
 
 ## 📹 使用イメージ
 
-拡張機能の基本的な使い方のデモ動画です。以下の画像をクリックするとYouTube動画が開きます：
-
-[![拡張機能のデモ](https://img.youtube.com/vi/TEzWdHMUWhU/0.jpg)](https://www.youtube.com/watch?v=TEzWdHMUWhU)
+拡張機能の基本的な使い方のデモ動画です。
 
 @https://youtu.be/hD_HV36I5SQ
 
