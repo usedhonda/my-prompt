@@ -136,6 +136,13 @@
 ### v1.0.3
 - 初期リリース
 
+### v1.0.7
+- Chromeウェブストア公開に向けて`manifest.json`のパーミッションを整理
+  - 必要最小限の`permissions`（`tabs`, `contextMenus`, `storage`, `scripting`）のみを明記
+  - `host_permissions`をAIサービスのみに限定し、不要な権限を削除
+- セキュリティ・審査通過のためのmanifest見直し
+- ドキュメントの微修正
+
 ---
 
 <div align="center">
