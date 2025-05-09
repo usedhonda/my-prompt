@@ -182,6 +182,16 @@
       
       <div class="prompt-template">
         <div class="prompt-title">
+          <input type="text" class="title-input" id="free-text-title" value="自由テキスト送信" placeholder="タイトルを入力">
+        </div>
+        <textarea id="free-text-prompt" rows="6"></textarea>
+        <div class="variables">
+          利用可能なマクロ: <code>{inputText}</code>（入力したテキスト）, <code>{pageUrl}</code>（現在のページURL）
+        </div>
+      </div>
+
+      <div class="prompt-template">
+        <div class="prompt-title">
           <input type="text" class="title-input" id="send-url-title" value="テキスト未選択" placeholder="タイトルを入力">
         </div>
         <textarea id="send-url-prompt" rows="6"></textarea>

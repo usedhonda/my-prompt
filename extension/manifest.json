@@ -6,7 +6,8 @@
   "permissions": [
     "contextMenus",
     "storage",
-    "scripting"
+    "scripting",
+    "system.display"
   ],
   "host_permissions": [
     "https://chat.openai.com/*",
@@ -18,7 +19,8 @@
     "https://manus.ai/*",
     "https://*.manus.ai/*",
     "https://manus.im/*",
-    "https://*.manus.im/*"
+    "https://*.manus.im/*",
+    "<all_urls>"
   ],
   "background": {
     "service_worker": "background.js",

@@ -61,9 +61,14 @@ export const AVAILABLE_VARIABLES = {
 // コンテキストメニューの設定
 export const CONTEXT_MENUS = [
   {
+    id: 'free-text',
+    title: '自由テキスト送信',
+    contexts: ['page', 'frame', 'link', 'image', 'video', 'audio']
+  },
+  {
     id: 'send-url',
     title: 'URLのみ送信',
-    contexts: ['all']
+    contexts: ['page', 'frame', 'link', 'image', 'video', 'audio']
   },
   {
     id: 'send-text',
@@ -79,29 +84,17 @@ export const CONTEXT_MENUS = [
 
 // デフォルトのプロンプトテンプレート
 export const DEFAULT_PROMPTS = {
-  'send-url': `以下のURLを読み込んでください。
-{pageUrl}
-
-このページの内容を以下の見やすいMarkdown形式でまとめてください。
-1. **わかりやすい要約**
-2. **特徴的なキーワードの解説**
-3. **記事を理解するために知っておくべき補足情報**`,
-
-  'send-text': `以下のURLを読み込んでください。
-{pageUrl}
-
-そこに記載されている「{selectionText}」について、一般的な意味合いだけでなく、文章内でどのような意味で使われているか、教えてください。`,
-
-  'translate-text': `次のテキストを翻訳してください。英語なら日本語、日本語なら英語。その他の言語なら日本語に。
-
-翻訳結果を提示する際には、上級レベルの英語学習者にとって役立つ追加情報（語彙のニュアンス、例文、語法のポイントなど）をできるだけ詳しく説明してください。
-{selectionText}`
+  'free-text': `{inputText}`,
+  'send-url': `以下のURLを読み込んでください。\n{pageUrl}\n\n以下の見やすいMarkdown形式でまとめてください。\n1. **わかりやすい要約**\n2. **特徴的なキーワードの解説**\n3. **記事を理解するために知っておくべき補足情報**`,
+  'send-text': `以下のURLを読み込んでください。\n{pageUrl}\n\nそこに記載されている「{selectionText}」について、一般的な意味合いだけでなく、文章内でどのような意味で使われているか、教えてください。`,
+  'translate-text': `次のテキストを翻訳してください。英語なら日本語、日本語なら英語。その他の言語なら日本語に。\n\n翻訳結果を提示する際には、上級レベルの英語学習者にとって役立つ追加情報（語彙のニュアンス、例文、語法のポイントなど）をできるだけ詳しく説明してください。\n{selectionText}`
 };
 
 // デフォルトの設定
 export const DEFAULT_SETTINGS = {
   services: DEFAULT_SERVICES,
   titles: {
+    'free-text': '自由テキスト送信',
     'send-url': 'URLのみ送信',
     'send-text': '選択テキスト送信',
     'translate-text': '翻訳'

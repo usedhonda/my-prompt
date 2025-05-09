@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
-    // プロンプトテンプレートを設定
+    // free-text用のプロンプト欄も含めて設定
     Object.entries(settings.prompts).forEach(([key, value]) => {
       const textarea = document.getElementById(`${key}-prompt`);
       if (textarea) {

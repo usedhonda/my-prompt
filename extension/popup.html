@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>自由テキスト送信</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <h2>自由テキスト送信</h2>
+    <form id="free-text-form">
+      <textarea id="inputText" rows="8" placeholder="ここに送信したいテキストを入力してください"></textarea>
+      <div class="macro-buttons">
+        <button type="button" class="macro-btn" data-macro="{pageUrl}">{pageUrl}を挿入</button>
+        <button type="button" class="macro-btn" data-macro="{inputText}">{inputText}を挿入</button>
+      </div>
+      <div class="variables">
+        利用可能なマクロ: <code>{inputText}</code>（入力したテキスト）, <code>{pageUrl}</code>（現在のページURL）
+      </div>
+      <button type="submit" id="sendBtn">送信</button>
+    </form>
+    <div id="status" class="status"></div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html> 

@@ -38,13 +38,31 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
 
 // メニュークリック処理
 chrome.contextMenus.onClicked.addListener((info, tab) => {
-  // 設定を読み込んでプロンプトを処理
   chrome.storage.sync.get(['services', 'prompts'], ({ services, prompts }) => {
-    // 設定が存在しない場合はデフォルト値を使用
     const activeServices = services || DEFAULT_SERVICES;
     const activePrompts = prompts || DEFAULT_PROMPTS;
 
-    // プロンプトテンプレートを取得
+    // free-textの場合はポップアップウィンドウを開く
+    if (info.menuItemId === 'free-text') {
+      // ブラウザウィンドウの中央にポップアップを表示
+      chrome.windows.getCurrent({}, (currentWindow) => {
+        const width = 440;
+        const height = 540;
+        const left = Math.round(currentWindow.left + (currentWindow.width - width) / 2);
+        const top = Math.round(currentWindow.top + (currentWindow.height - height) / 2);
+        chrome.windows.create({
+          url: chrome.runtime.getURL('popup.html'),
+          type: 'popup',
+          width,
+          height,
+          left,
+          top
+        });
+      });
+      return;
+    }
+
+    // 通常のプロンプトテンプレートを取得
     let promptTemplate = activePrompts[info.menuItemId] || DEFAULT_PROMPTS[info.menuItemId];
 
     // 変数を置換
@@ -185,3 +203,29 @@ function openServiceWindow(service, prompt) {
     });
   }
 }
+
+// ポップアップからのメッセージを受けてAIサービスに送信
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === 'SEND_FREE_TEXT') {
+    chrome.storage.sync.get(['services', 'prompts'], ({ services, prompts }) => {
+      const activeServices = services || DEFAULT_SERVICES;
+      const activePrompts = prompts || DEFAULT_PROMPTS;
+      let promptTemplate = activePrompts['free-text'] || DEFAULT_PROMPTS['free-text'];
+      const variables = {
+        pageUrl: message.pageUrl || '',
+        inputText: message.inputText || ''
+      };
+      Object.keys(variables).forEach(key => {
+        promptTemplate = promptTemplate.replace(new RegExp(`{${key}}`, 'g'), variables[key]);
+      });
+      Object.entries(activeServices).forEach(([service, isEnabled]) => {
+        if (isEnabled) {
+          openServiceWindow(service, promptTemplate);
+        }
+      });
+      sendResponse({ success: true });
+    });
+    // 非同期レスポンスのためtrueを返す
+    return true;
+  }
+});
