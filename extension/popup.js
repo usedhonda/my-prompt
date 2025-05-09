@@ -3,6 +3,22 @@ document.addEventListener('DOMContentLoaded', () => {
   const textarea = document.getElementById('inputText');
   const status = document.getElementById('status');
   const sendBtn = document.getElementById('sendBtn');
+  const macroBtns = document.querySelectorAll('.macro-btn');
+
+  // マクロ挿入ボタン
+  macroBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const macro = btn.getAttribute('data-macro');
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const value = textarea.value;
+      textarea.value = value.slice(0, start) + macro + value.slice(end);
+      // カーソルをマクロの後ろに移動
+      textarea.selectionStart = textarea.selectionEnd = start + macro.length;
+      textarea.focus();
+      sendBtn.disabled = textarea.value.trim().length === 0;
+    });
+  });
 
   // 入力値が空の時は送信ボタンを無効化
   const updateSendBtn = () => {
@@ -13,16 +29,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const inputText = textarea.value.trim();
-    if (!inputText) {
-      status.textContent = 'テキストを入力してください。';
-      return;
-    }
+    const rawText = textarea.value;
     status.textContent = '送信中...';
     sendBtn.disabled = true;
-    // 現在のタブのURLを取得
-    chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-      const pageUrl = tabs[0]?.url || '';
+    // chrome.storage.localからpageUrlを取得
+    chrome.storage.local.get('popupPageUrl', (data) => {
+      const pageUrl = data.popupPageUrl || '';
+      // textarea内の{pageUrl}や{inputText}を置換
+      const inputText = rawText.replace(/\{pageUrl\}/g, pageUrl).replace(/\{inputText\}/g, rawText);
+      console.log('送信内容:', inputText); // デバッグ用
       // backgroundにメッセージ送信
       chrome.runtime.sendMessage({
         type: 'SEND_FREE_TEXT',

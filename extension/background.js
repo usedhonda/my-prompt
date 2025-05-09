@@ -45,18 +45,21 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     // free-textの場合はポップアップウィンドウを開く
     if (info.menuItemId === 'free-text') {
       // ブラウザウィンドウの中央にポップアップを表示
-      chrome.windows.getCurrent({}, (currentWindow) => {
-        const width = 440;
-        const height = 540;
-        const left = Math.round(currentWindow.left + (currentWindow.width - width) / 2);
-        const top = Math.round(currentWindow.top + (currentWindow.height - height) / 2);
-        chrome.windows.create({
-          url: chrome.runtime.getURL('popup.html'),
-          type: 'popup',
-          width,
-          height,
-          left,
-          top
+      const pageUrl = info.pageUrl || (tab && tab.url) || '';
+      chrome.storage.local.set({ popupPageUrl: pageUrl }, () => {
+        chrome.windows.getCurrent({}, (currentWindow) => {
+          const width = 440;
+          const height = 540;
+          const left = Math.round(currentWindow.left + (currentWindow.width - width) / 2);
+          const top = Math.round(currentWindow.top + (currentWindow.height - height) / 2);
+          chrome.windows.create({
+            url: chrome.runtime.getURL('popup.html'),
+            type: 'popup',
+            width,
+            height,
+            left,
+            top
+          });
         });
       });
       return;
