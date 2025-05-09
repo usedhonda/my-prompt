@@ -7,15 +7,17 @@
 </head>
 <body>
   <div class="container">
-    <h2>自由テキスト送信</h2>
+    <h2 id="popup-title">自由テキスト送信</h2>
+    <div id="settings-link-container" style="text-align:center; margin-bottom:12px;">
+      <a href="#" id="open-settings" class="settings-link">送信先サービスやプロンプトの設定はこちら</a>
+    </div>
     <form id="free-text-form">
       <textarea id="inputText" rows="8" placeholder="ここに送信したいテキストを入力してください"></textarea>
       <div class="macro-buttons">
         <button type="button" class="macro-btn" data-macro="{pageUrl}">{pageUrl}を挿入</button>
-        <button type="button" class="macro-btn" data-macro="{inputText}">{inputText}を挿入</button>
       </div>
       <div class="variables">
-        利用可能なマクロ: <code>{inputText}</code>（入力したテキスト）, <code>{pageUrl}</code>（現在のページURL）
+        利用可能なマクロ: <code>{pageUrl}</code>（現在のページURL）
       </div>
       <button type="submit" id="sendBtn">送信</button>
     </form>

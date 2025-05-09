@@ -10,10 +10,10 @@ body {
   min-width: 320px;
   margin: 30px auto;
   background: #fff;
-  padding: 24px 20px 20px 20px;
+  padding: 20px 20px 20px 20px;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-  height: 460px;
+  height: 560px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -81,11 +81,20 @@ code {
   padding: 10px 0;
   font-size: 1em;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.2s, opacity 0.2s;
   margin-top: auto;
+  opacity: 1;
+  box-shadow: 0 2px 4px rgba(0,123,255,0.08);
 }
-#sendBtn:hover {
+#sendBtn:hover:enabled {
   background: #0056b3;
+}
+#sendBtn:disabled {
+  background: #bfc4c9;
+  color: #fff;
+  cursor: not-allowed;
+  opacity: 0.7;
+  box-shadow: none;
 }
 
 .status {
@@ -113,4 +122,19 @@ code {
 }
 .macro-btn:hover {
   background: #d0d7de;
+}
+
+.settings-link {
+  color: #007bff;
+  text-decoration: underline;
+  font-weight: 500;
+  font-size: 1em;
+  transition: color 0.2s;
+}
+.settings-link:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}
+#settings-link-container {
+  margin-bottom: 12px;
 } 

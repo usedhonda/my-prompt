@@ -4,8 +4,28 @@ document.addEventListener('DOMContentLoaded', () => {
   const status = document.getElementById('status');
   const sendBtn = document.getElementById('sendBtn');
   const macroBtns = document.querySelectorAll('.macro-btn');
+  const popupTitle = document.getElementById('popup-title');
+  const openSettings = document.getElementById('open-settings');
 
-  // マクロ挿入ボタン
+  // タイトルを動的に書き換え
+  chrome.storage.local.get('popupServiceNames', (data) => {
+    const names = data.popupServiceNames || [];
+    if (names.length > 0) {
+      popupTitle.textContent = `${names.join(', ')} に以下のプロンプトを送信します`;
+    } else {
+      popupTitle.textContent = 'プロンプトを送信します';
+    }
+  });
+
+  // 設定画面リンク
+  openSettings.addEventListener('click', (e) => {
+    e.preventDefault();
+    chrome.tabs.create({ url: chrome.runtime.getURL('options.html') }, () => {
+      window.close();
+    });
+  });
+
+  // マクロ挿入ボタン（{pageUrl}のみ）
   macroBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       const macro = btn.getAttribute('data-macro');
@@ -13,7 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const end = textarea.selectionEnd;
       const value = textarea.value;
       textarea.value = value.slice(0, start) + macro + value.slice(end);
-      // カーソルをマクロの後ろに移動
       textarea.selectionStart = textarea.selectionEnd = start + macro.length;
       textarea.focus();
       sendBtn.disabled = textarea.value.trim().length === 0;
@@ -35,8 +54,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // chrome.storage.localからpageUrlを取得
     chrome.storage.local.get('popupPageUrl', (data) => {
       const pageUrl = data.popupPageUrl || '';
-      // textarea内の{pageUrl}や{inputText}を置換
-      const inputText = rawText.replace(/\{pageUrl\}/g, pageUrl).replace(/\{inputText\}/g, rawText);
+      // textarea内の{pageUrl}のみ置換
+      const inputText = rawText.replace(/\{pageUrl\}/g, pageUrl);
       console.log('送信内容:', inputText); // デバッグ用
       // backgroundにメッセージ送信
       chrome.runtime.sendMessage({
@@ -54,5 +73,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
     });
+  });
+
+  // フォーカスが外れたら自動で閉じる
+  window.addEventListener('blur', () => {
+    setTimeout(() => {
+      window.close();
+    }, 100);
   });
 }); 

@@ -68,7 +68,7 @@ export const CONTEXT_MENUS = [
   {
     id: 'send-url',
     title: 'URLのみ送信',
-    contexts: ['page', 'frame', 'link', 'image', 'video', 'audio']
+    contexts: ['selection']
   },
   {
     id: 'send-text',

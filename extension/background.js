@@ -44,21 +44,36 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 
     // free-textの場合はポップアップウィンドウを開く
     if (info.menuItemId === 'free-text') {
-      // ブラウザウィンドウの中央にポップアップを表示
-      const pageUrl = info.pageUrl || (tab && tab.url) || '';
-      chrome.storage.local.set({ popupPageUrl: pageUrl }, () => {
-        chrome.windows.getCurrent({}, (currentWindow) => {
-          const width = 440;
-          const height = 540;
-          const left = Math.round(currentWindow.left + (currentWindow.width - width) / 2);
-          const top = Math.round(currentWindow.top + (currentWindow.height - height) / 2);
-          chrome.windows.create({
-            url: chrome.runtime.getURL('popup.html'),
-            type: 'popup',
-            width,
-            height,
-            left,
-            top
+      // 有効なサービス名リストを取得
+      chrome.storage.sync.get(['services'], ({ services }) => {
+        const activeServices = services || DEFAULT_SERVICES;
+        const enabledServiceNames = Object.entries(activeServices)
+          .filter(([_, isEnabled]) => isEnabled)
+          .map(([service]) => {
+            switch (service) {
+              case SERVICES.CHAT: return 'ChatGPT';
+              case SERVICES.GEMINI: return 'Gemini';
+              case SERVICES.GROK: return 'Grok';
+              case SERVICES.PERPLEXITY: return 'Perplexity';
+              case SERVICES.MANUS: return 'Manus';
+              default: return service;
+            }
+          });
+        const pageUrl = info.pageUrl || (tab && tab.url) || '';
+        chrome.storage.local.set({ popupPageUrl: pageUrl, popupServiceNames: enabledServiceNames }, () => {
+          chrome.windows.getCurrent({}, (currentWindow) => {
+            const width = 440;
+            const height = 620;
+            const left = Math.round(currentWindow.left + (currentWindow.width - width) / 2);
+            const top = Math.round((currentWindow.height - height) / 2 + currentWindow.top);
+            chrome.windows.create({
+              url: chrome.runtime.getURL('popup.html'),
+              type: 'popup',
+              width,
+              height,
+              left,
+              top
+            });
           });
         });
       });
