@@ -62,7 +62,7 @@ export const AVAILABLE_VARIABLES = {
 export const CONTEXT_MENUS = [
   {
     id: 'free-text',
-    title: '自由テキスト送信',
+    title: '自由プロンプト送信',
     contexts: ['page', 'frame', 'link', 'image', 'video', 'audio']
   },
   {
@@ -78,6 +78,11 @@ export const CONTEXT_MENUS = [
   {
     id: 'translate-text',
     title: '翻訳',
+    contexts: ['selection']
+  },
+  {
+    id: 'free-text-selection',
+    title: '自由プロンプト送信',
     contexts: ['selection']
   }
 ];

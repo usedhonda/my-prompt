@@ -6,6 +6,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const macroBtns = document.querySelectorAll('.macro-btn');
   const popupTitle = document.getElementById('popup-title');
   const openSettings = document.getElementById('open-settings');
+  const templateSelect = document.getElementById('template-select');
+  const insertTemplateBtn = document.getElementById('insert-template');
+  let templateMap = {};
 
   // タイトルを動的に書き換え
   chrome.storage.local.get('popupServiceNames', (data) => {
@@ -51,12 +54,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const rawText = textarea.value;
     status.textContent = '送信中...';
     sendBtn.disabled = true;
-    // chrome.storage.localからpageUrlを取得
-    chrome.storage.local.get('popupPageUrl', (data) => {
+    chrome.storage.local.get(['popupPageUrl', 'popupSelectionText'], (data) => {
       const pageUrl = data.popupPageUrl || '';
-      // textarea内の{pageUrl}のみ置換
-      const inputText = rawText.replace(/\{pageUrl\}/g, pageUrl);
-      console.log('送信内容:', inputText); // デバッグ用
+      const selectionText = data.popupSelectionText || '';
+      // textarea内の{pageUrl}や{selectionText}を置換
+      let inputText = rawText.replace(/\{pageUrl\}/g, pageUrl).replace(/\{selectionText\}/g, selectionText);
       // backgroundにメッセージ送信
       chrome.runtime.sendMessage({
         type: 'SEND_FREE_TEXT',
@@ -80,5 +82,41 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
       window.close();
     }, 100);
+  });
+
+  // テンプレート一覧を取得してドロップダウンに反映
+  chrome.storage.sync.get(['prompts', 'titles'], (data) => {
+    let prompts = data.prompts || {};
+    let titles = data.titles || {};
+    if (Object.keys(prompts).length === 0 || Object.keys(titles).length === 0) {
+      chrome.runtime.sendMessage({ type: 'GET_DEFAULT_PROMPTS' }, (defaults) => {
+        prompts = defaults.prompts || {};
+        titles = defaults.titles || {};
+        populateTemplates(prompts, titles);
+      });
+    } else {
+      populateTemplates(prompts, titles);
+    }
+  });
+
+  function populateTemplates(prompts, titles) {
+    Object.entries(prompts).forEach(([key, value]) => {
+      if (key === 'free-text' || key === 'free-text-selection') return;
+      const option = document.createElement('option');
+      option.value = key;
+      option.textContent = titles[key] || key;
+      templateMap[key] = value;
+      templateSelect.appendChild(option);
+    });
+  }
+
+  // 挿入ボタンで選択テンプレート内容をテキストエリアに挿入
+  templateSelect.addEventListener('change', () => {
+    const key = templateSelect.value;
+    if (key && templateMap[key]) {
+      textarea.value = templateMap[key];
+      textarea.focus();
+      sendBtn.disabled = textarea.value.trim().length === 0;
+    }
   });
 }); 

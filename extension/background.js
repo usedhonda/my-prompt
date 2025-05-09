@@ -6,7 +6,8 @@ import {
   SERVICE_SELECTORS,
   DEFAULT_SERVICES,
   DEFAULT_PROMPTS,
-  CONTEXT_MENUS
+  CONTEXT_MENUS,
+  DEFAULT_SETTINGS
 } from './constants.js';
 
 // コンテキストメニューの登録と更新
@@ -43,7 +44,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     const activePrompts = prompts || DEFAULT_PROMPTS;
 
     // free-textの場合はポップアップウィンドウを開く
-    if (info.menuItemId === 'free-text') {
+    if (info.menuItemId === 'free-text' || info.menuItemId === 'free-text-selection') {
       // 有効なサービス名リストを取得
       chrome.storage.sync.get(['services'], ({ services }) => {
         const activeServices = services || DEFAULT_SERVICES;
@@ -60,7 +61,8 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
             }
           });
         const pageUrl = info.pageUrl || (tab && tab.url) || '';
-        chrome.storage.local.set({ popupPageUrl: pageUrl, popupServiceNames: enabledServiceNames }, () => {
+        const selectionText = info.selectionText || '';
+        chrome.storage.local.set({ popupPageUrl: pageUrl, popupServiceNames: enabledServiceNames, popupSelectionText: selectionText }, () => {
           chrome.windows.getCurrent({}, (currentWindow) => {
             const width = 440;
             const height = 620;
@@ -244,6 +246,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       sendResponse({ success: true });
     });
     // 非同期レスポンスのためtrueを返す
+    return true;
+  }
+  if (message.type === 'GET_DEFAULT_PROMPTS') {
+    sendResponse({
+      prompts: DEFAULT_PROMPTS,
+      titles: DEFAULT_SETTINGS.titles
+    });
     return true;
   }
 });
