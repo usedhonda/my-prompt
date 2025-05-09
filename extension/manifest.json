@@ -7,6 +7,7 @@
     "contextMenus",
     "storage",
     "scripting",
+    "activeTab",
     "system.display"
   ],
   "host_permissions": [
@@ -19,8 +20,7 @@
     "https://manus.ai/*",
     "https://*.manus.ai/*",
     "https://manus.im/*",
-    "https://*.manus.im/*",
-    "<all_urls>"
+    "https://*.manus.im/*"
   ],
   "background": {
     "service_worker": "background.js",
