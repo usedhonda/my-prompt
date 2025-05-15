@@ -1,14 +1,13 @@
 {
   "manifest_version": 3,
   "name": "俺のプロンプト",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "選択したテキストや現在のページを各種AIサービスに送信するための拡張機能",
   "permissions": [
     "contextMenus",
     "storage",
     "scripting",
-    "activeTab",
-    "system.display"
+    "activeTab"
   ],
   "host_permissions": [
     "https://chat.openai.com/*",
