@@ -57,6 +57,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
               case SERVICES.GROK: return 'Grok';
               case SERVICES.PERPLEXITY: return 'Perplexity';
               case SERVICES.MANUS: return 'Manus';
+              case SERVICES.CLAUDE: return 'Claude';
               default: return service;
             }
           });
@@ -171,6 +172,7 @@ function openServiceWindow(service, prompt) {
                   // 重要: 入力要素の種類によって処理を分岐
                   // - contentEditable=true（ChatGPT, Gemini）: innerHTML + InputEventで入力
                   // - textarea（Grok）: valueプロパティ + input/changeイベントで入力
+                  // この処理が必要なサービスでは、SERVICE_SELECTORSのisContentEditableをfalseに設定すること
                   if (isContentEditable) {
                     // contentEditable要素の場合（ChatGPT, Geminiなど）
                     inputEl.innerHTML = `<p>${text}</p>`;
@@ -184,7 +186,6 @@ function openServiceWindow(service, prompt) {
                   } else {
                     // 通常のtextarea要素の場合（Grokなど）
                     // valueプロパティでテキストを設定し、input/changeイベントを発火
-                    // この処理が必要なサービスでは、SERVICE_SELECTORSのisContentEditableをfalseに設定すること
                     inputEl.value = text;
                     inputEl.dispatchEvent(new Event('input', { bubbles: true }));
                     inputEl.dispatchEvent(new Event('change', { bubbles: true }));

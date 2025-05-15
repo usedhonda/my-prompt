@@ -4,7 +4,8 @@ export const SERVICES = {
   GEMINI: 'gemini',
   GROK: 'grok',
   PERPLEXITY: 'perplexity',
-  MANUS: 'manus'
+  MANUS: 'manus',
+  CLAUDE: 'claude'
 };
 
 // サービスのURLマッピング
@@ -13,7 +14,8 @@ export const SERVICE_URLS = {
   [SERVICES.GEMINI]: 'https://gemini.google.com/app',
   [SERVICES.GROK]: 'https://x.com/i/grok',
   [SERVICES.PERPLEXITY]: 'https://www.perplexity.ai/?q={text}',
-  [SERVICES.MANUS]: 'https://manus.im'
+  [SERVICES.MANUS]: 'https://manus.im',
+  [SERVICES.CLAUDE]: 'https://claude.ai/new'
 };
 
 // サービスのデフォルト設定
@@ -22,7 +24,8 @@ export const DEFAULT_SERVICES = {
   [SERVICES.GEMINI]: false,
   [SERVICES.GROK]: false,
   [SERVICES.PERPLEXITY]: false,
-  [SERVICES.MANUS]: false
+  [SERVICES.MANUS]: false,
+  [SERVICES.CLAUDE]: false
 };
 
 // サービスのセレクタ
@@ -49,6 +52,11 @@ export const SERVICE_SELECTORS = {
     input: 'textarea[placeholder*="Manus にタスクを依頼"]',
     submit: 'button.whitespace-nowrap.text-sm.font-medium:not([disabled])',
     isContentEditable: false
+  },
+  [SERVICES.CLAUDE]: {
+    input: 'div.ProseMirror[contenteditable="true"], p[data-placeholder]',
+    submit: 'button[aria-label="メッセージを送信"]',
+    isContentEditable: true
   }
 };
 
