@@ -174,15 +174,57 @@ function openServiceWindow(service, prompt) {
                   // - textarea（Grok）: valueプロパティ + input/changeイベントで入力
                   // この処理が必要なサービスでは、SERVICE_SELECTORSのisContentEditableをfalseに設定すること
                   if (isContentEditable) {
-                    // contentEditable要素の場合（ChatGPT, Geminiなど）
-                    inputEl.innerHTML = `<p>${text}</p>`;
-                    const event = new InputEvent('input', {
-                      bubbles: true,
-                      cancelable: true,
-                      inputType: 'insertText',
-                      data: text
-                    });
-                    inputEl.dispatchEvent(event);
+                    // Claude専用: サービス名を判定
+                    const isClaude = inputSelector.includes('ProseMirror') && submitSelector === 'button[aria-label="メッセージを送信"]';
+                    if (isClaude) {
+                      // 1. フォーカス
+                      inputEl.focus();
+                      // 2. 既存テキストを全選択して削除
+                      const sel = window.getSelection();
+                      sel.removeAllRanges();
+                      const range = document.createRange();
+                      range.selectNodeContents(inputEl);
+                      sel.addRange(range);
+                      document.execCommand('delete', false, null);
+                      // 3. テキストを「ユーザー入力」として挿入
+                      document.execCommand('insertText', false, text);
+                      // 4. 念のためinputイベントも発火
+                      const event = new InputEvent('input', {
+                        bubbles: true,
+                        cancelable: true,
+                        inputType: 'insertText',
+                        data: text
+                      });
+                      inputEl.dispatchEvent(event);
+                      // 5. 送信ボタン有効化をリトライしつつクリック
+                      const tryClickSubmit = (retry = 0) => {
+                        const submitBtn = document.querySelector(submitSelector);
+                        if (submitBtn && !submitBtn.disabled) {
+                          submitBtn.click();
+                        } else if (retry < 5) {
+                          inputEl.focus();
+                          document.execCommand('insertText', false, text);
+                          inputEl.dispatchEvent(new InputEvent('input', {
+                            bubbles: true,
+                            cancelable: true,
+                            inputType: 'insertText',
+                            data: text
+                          }));
+                          setTimeout(() => tryClickSubmit(retry + 1), 300);
+                        }
+                      };
+                      setTimeout(() => tryClickSubmit(), 400);
+                    } else {
+                      // ChatGPT, Geminiなど従来通り
+                      inputEl.innerHTML = `<p>${text}</p>`;
+                      const event = new InputEvent('input', {
+                        bubbles: true,
+                        cancelable: true,
+                        inputType: 'insertText',
+                        data: text
+                      });
+                      inputEl.dispatchEvent(event);
+                    }
                   } else {
                     // 通常のtextarea要素の場合（Grokなど）
                     // valueプロパティでテキストを設定し、input/changeイベントを発火
