@@ -27,6 +27,7 @@
 | Google Gemini | ✅ |
 | Grok (X.ai) | ✅ |
 | Perplexity | ✅ |
+| Claude (Anthropic) | ✅ |
 | Manus | ✅ |
 
 ## 🚀 クイックスタート
