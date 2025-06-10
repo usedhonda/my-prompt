@@ -1,6 +1,7 @@
 
 .DS_Store
 extension/my-prompt.zip
+*.zip
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
