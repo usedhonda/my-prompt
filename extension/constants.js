@@ -50,7 +50,7 @@ export const SERVICE_SELECTORS = {
   },
   [SERVICES.MANUS]: {
     input: 'textarea[placeholder*="Manus にタスクを依頼"]',
-    submit: 'button.whitespace-nowrap.text-sm.font-medium:not([disabled])',
+    submit: 'button[class*="bg-[var(--Button-primary-black)]"], button:has(svg[fill*="var(--icon-onblack)"]), button.w-8.h-8.rounded-full:not([class*="border"])',
     isContentEditable: false
   },
   [SERVICES.CLAUDE]: {
